@@ -1,0 +1,31 @@
+---
+- name: Setup Windows machine
+  hosts: windows
+  tasks:
+    - name: Check if Scoop is installed
+      win_shell: "scoop | Out-Null"
+      register: scoop_installed
+      ignore_errors: true
+
+    - name: Install Scoop
+      win_shell: "iwr -useb get.scoop.sh | iex"
+      when: scoop_installed.rc != 0
+
+    - name: Add Scoop 'extras' bucket
+      win_shell: "scoop bucket list | findstr /C:\"extras\""
+      register: extras_bucket
+      ignore_errors: true
+
+    - name: Add 'extras' bucket
+      win_shell: "scoop bucket add extras"
+      when: extras_bucket.rc != 0
+
+    - name: Install Komorebi
+      win_shell: "scoop install komorebi"
+
+    - name: Install AutoHotkey
+      win_shell: "scoop install autohotkey"
+
+    - name: Install GCM
+      win_shell: "scoop install git-credential-manager"
+---
