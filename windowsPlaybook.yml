@@ -16,16 +16,130 @@
       register: extras_bucket
       ignore_errors: true
 
+    - name: Add Scoop 'main' bucket
+      win_shell: "scoop bucket list | findstr /C:\"main\""
+      register: main_bucket
+      ignore_errors: true
+
+    - name: Add Scoop 'nonportable' bucket
+      win_shell: "scoop bucket list | findstr /C:\"nonportable\""
+      register: nonportable_bucket
+      ignore_errors: true
+
     - name: Add 'extras' bucket
       win_shell: "scoop bucket add extras"
       when: extras_bucket.rc != 0
 
+    - name: Add 'nonportable' bucket
+      win_shell: "scoop bucket add nonportable"
+      when: nonportable_bucket.rc != 0
+
+    - name: Add 'main' bucket
+      win_shell: "scoop bucket add main"
+      when: main_bucket.rc != 0
+
     - name: Install Komorebi
       win_shell: "scoop install komorebi"
+
+    - name: Install Windows Terminal
+      win_shell: "scoop install extras/windows-terminal"
 
     - name: Install AutoHotkey
       win_shell: "scoop install autohotkey"
 
     - name: Install GCM
       win_shell: "scoop install git-credential-manager"
+
+    - name: Install Chezmoi
+      win_shell: "scoop install chezmoi"
+
+    - name: Install Chrome
+      win_shell: "scoop install googlechrome"
+
+    - name: Ensure ~\.config\chezmoi exists
+      ansible.windows.win_file:
+        path: "~\\.config\\chezmoi"
+        state: directory
+
+    - name: Create chezmoi.toml
+      ansible.windows.win_copy:
+        dest: "~\\.config\\chezmoi\\chezmoi.toml"
+        content: |
+          [git]
+          autoCommit = true
+          autoPush = true
+
+    - name: Install Powershell .Net Core
+      win_shell: "winget install Microsoft.PowerShell"
+        
+    - name: Install Oh-My-Posh
+      win_shell: "scoop install https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/oh-my-posh.json"
+
+    - name: Install gcc
+      win_shell: "scoop install gcc"
+
+    - name: Install git
+      win_shell: "scoop install main/git"
+
+    - name: Configure git
+      win_shell: git config --global user.name "Kierian"
+      win_shell: git config --global user.email "kierianheffron25@gmail.com"
+
+    - name: Configure ssh
+      win_shell: ssh-keygen -t rsa -b 4096 -C "kierianheffron25@gmail.com"
+
+    - name: Install go
+      win_shell: "scoop install go"
+
+    - name: Install 7zip
+      win_shell: "scoop install 7zip"
+
+    - name: Install autohotkey
+      win_shell: "scoop install autohotkey"
+
+    - name: Install fzf
+      win_shell: "scoop install fzf"
+
+    - name: Install powertoys
+      win_shell: "scoop install extras/powertoys"
+
+    - name: Install quicklook
+      win_shell: "scoop install quicklook"
+
+    - name: Install nodejs
+      win_shell: "scoop install main/nodejs"
+
+    - name: Install openvpn connect
+      win_shell: "scoop install extras/openvpn-connect"
+
+    - name: Install Icloud
+      win_shell: "winget install 9PKTQ5699M62"
+
+    - name: Install SQL Server
+      win_shell: "scoop install nonportable/sql-server-management-studio-np"
+
+    - name: Install lf
+      win_shell: "$env:CGO_ENABLED = '0'"
+      win_shell: "go install -ldflags="-s -w" github.com/gokcehan/lf@latest"
+
+    - name: Install neovim
+      win_shell: "scoop install neovim"
+
+    - name: Install neofetch
+      win_shell: "scoop install neofetch"
+
+    - name: Install rust
+      win_shell: "scoop install rust"
+
+    - name: Install python
+      win_shell: "scoop install python"
+
+    - name: Install thokr
+      win_shell: "cargo install thokr"
+
+    - name: Install pip
+      win_shell: "python -m pip install -U pip"
+     
+    - name: Clone Dotfiles 
+      win_shell: "chezmoi init --apply KierianH"
 ---
